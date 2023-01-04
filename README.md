@@ -1,6 +1,6 @@
 # pâro-rs
 
-An opinionated way to develop [tauri](https://tauri.app/) desktop applications powered by html and csss where you do not write any client code (no javascript, no webassembly) as all html rendering and event handling is done inside your tauri application. pâro has the minimal client code that is still required already done for you. No more https calls or dealing with JSON.
+An opinionated way to develop [tauri](https://tauri.app/) desktop applications powered by html and css where you do not write any client code (no javascript, no webassembly) as all html rendering and event handling is done inside your tauri application. pâro has the minimal client code that is still required already done for you. No more https calls or dealing with JSON.
 
 This cuts down on code complexity, build process complexity, compile time, nerve-wracking and frustration.
 
