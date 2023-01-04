@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Tauri + pâro counter example</title>
+
+    <!--
+      note that we did not use any package manager for the client.
+      Without npm or alternatives or a way to reference a file from
+      the paro-rs crate, we need to copy paro.js manually here.
+      An npm package will be available if that is preferred.
+    -->
+    <script src="paro.js"></script>
+    
+
+    <script>
+      // this is all the client code you need to write yourself:
+      // window.__PARO__.logging = false;
+      window.__PARO__.websocketUrl = "ws://127.0.0.1:1234";
+      window.__PARO__.initialize();
+    </script>
+    <link data-trunk rel="js" href="paro.js" />
+    <link data-trunk rel="copy-dir" href="static" />
+  </head>
+  <body id="paro-application">
+    Loading...
+  </body>
+</html>
