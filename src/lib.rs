@@ -18,7 +18,7 @@ impl CallbackStore {
     }
 
     pub fn insert(&mut self, id: String, callback: Arc<Mutex<dyn FnMut() + Send + 'static>>) -> () {
-        if (self.callbacks.contains_key(&id)) {
+        if self.callbacks.contains_key(&id) {
             panic!("[paro] callback ids must be unique, '{}' is not", &id);
         }
         self.callbacks.insert(id, callback);
