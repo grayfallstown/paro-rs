@@ -6,8 +6,6 @@ This cuts down on code complexity, build process complexity, compile time, nerve
 
 pâro does not enforce how you generate your html. Use your favorite template engine or just use format!() on strings. pâro does not care, but [maud compile time templates](https://github.com/lambda-fairy/maud) will be used in many examples to get compile time checks.
 
-# the pâro library is currently in pre-alpha state and will have small api changes soon, with a more stable version in the coming days.
-
 ## Where the name comes from
 
 > The name pâro comes from the [Dictionary of obscure sorrows](https://www.dictionaryofobscuresorrows.com/post/173924002125/p%C3%A2ro-n-the-feeling-that-no-matter-what-you-do-is) and describes the feeling that no matter what you do is always somehow wrong—that any attempt to make your way comfortably through the world will only end up crossing some invisible taboo—as if there’s some obvious way forward that everybody else can see but you, each of them leaning back in their chair and calling out helpfully, colder, colder, colder.
@@ -17,7 +15,7 @@ Pâro was what I felt writing my first tauri app and having to write an entire s
 ## Roadmap:
 
 - [x] Get pâro working
-- [ ] Improve API (CallbackStore vs ApplicationState as toplevel element)
+- [x] Improve API (CallbackStore vs ApplicationState as toplevel element)
 - [ ] Examples
   - [x] Minimal counter example
   - [ ] Implement GUI for [html2maud](https://github.com/grayfallstown/html2maud) with pâro and put it as submodule under examples
@@ -30,7 +28,7 @@ Pâro was what I felt writing my first tauri app and having to write an entire s
     - [ ] Include basics as routing, a formular and composing
     - [ ] pure format!() pâro starter
     - [ ] maud pâro starter
-- [ ] Dokumentation
+- [ ] Documentation / gitbook
 - [ ] Establish Best Practices
 - [ ] Differential html update
 - [ ] Get a Logo
@@ -73,4 +71,4 @@ MIT or Apache 2
 While pâro mainly exists to be used with [tauri](https://tauri.app), outside of the readme and code comments
 it does not reference tauri in any way. If you wanted, you could use pâro with tauri alternatives or even on an
 actual webapp. Please be aware that handling state and event handling on the server for thousands of users
-would require quite a few resources on the server.
+in a webapp would require quite a few resources on the server.
