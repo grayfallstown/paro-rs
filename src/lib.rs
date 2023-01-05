@@ -99,7 +99,7 @@ macro_rules! event {
             {
                 $paroApp.lock().unwrap().insert(
                     callback_id.clone(),
-                    Arc::new(Mutex::new($closure))
+                    Arc::new(Mutex::new(($closure)))
                 );
             }
             let javascript_call = format!{"window.__PARO__.emitEvent(\"{}\")", &callback_id};
