@@ -1,4 +1,4 @@
-# pâro-rs
+# [pâro-rs](https://github.com/grayfallstown/paro-rs) for [tauri](https://tauri.app/)
 
 ![pâro logo](https://github.com/grayfallstown/paro-rs/blob/main/paro.png?raw=true)
 
