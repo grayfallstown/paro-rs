@@ -22,7 +22,7 @@ fn render_with_format(paro_app: &mut Arc<Mutex<ParoApp<ApplicationState>>>) -> S
         r#"<button onclick='{}'>
             counter: {}
         </button>"#, // we use single quotes on onclick, as event! returns a string with double quotes. maud handles that iself
-            event!(paro_app, (move |state: &mut ApplicationState| {
+            event!(paro_app, (move |state: &mut ApplicationState, _value| {
                 // this is executed here in tauri and not in the gui client application
                 state.current_count += 1;
                 println!("first number of state.numbers updated to: {}", state.current_count);
@@ -40,7 +40,7 @@ fn render_with_format(paro_app: &mut Arc<Mutex<ParoApp<ApplicationState>>>) -> S
 fn render_with_maud(paro_app: &mut Arc<Mutex<ParoApp<ApplicationState>>>) -> String {
     let maud_template = html! {
         button onclick=({
-            event!(paro_app, (move |state: &mut ApplicationState| {
+            event!(paro_app, (move |state: &mut ApplicationState, _value| {
                 // this is executed here in tauri and not in the gui client application
                 state.current_count += 1;
                 println!("first number of state.numbers updated to: {}", state.current_count);
