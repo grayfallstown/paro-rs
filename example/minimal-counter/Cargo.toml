@@ -1,12 +1,12 @@
 [package]
 name = "minimal-counter"
-version = "0.0.4"
+version = "0.0.6"
 edition = "2021"
 build = "src/build.rs"
 
 [dependencies]
-# paro-rs = { path = "../../" }
-paro-rs = "0.0.5"
+paro-rs = { path = "../../" }
+# paro-rs = "0.0.6"
 uuid = { version = "1.2.2", features= ["v4", "fast-rng"] }
 maud = "0.24.0"
 tauri = { version = "1.2.3", features = [] }

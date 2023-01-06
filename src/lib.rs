@@ -7,7 +7,8 @@ use std::sync::{Arc, Mutex};
  * callback store that holds all your server side callbacks / eventhandlers.
  */
  pub struct ParoApp<State> {
-    callbacks: HashMap<String, Arc<Mutex<dyn FnMut(&mut State) + Send + 'static>>>,
+    callbacks: HashMap<String, (u128, Arc<Mutex<dyn FnMut(&mut State, String) + Send + 'static>>)>,
+    iteration: u128,
     pub state: State,
 }
 
@@ -15,6 +16,7 @@ impl <State> ParoApp<State> {
     pub fn new(state: State) -> ParoApp<State> {
         ParoApp::<State> {
             callbacks: HashMap::new(),
+            iteration: 0,
             state: state,
         }
     }
@@ -22,31 +24,43 @@ impl <State> ParoApp<State> {
     /**
      * Register a callback with pâro so it can be called by it
      */
-    pub fn insert(&mut self, id: String, callback: Arc<Mutex<dyn FnMut(&mut State) + Send + 'static>>) -> () {
+    pub fn insert(&mut self, id: String, callback: Arc<Mutex<dyn FnMut(&mut State, String) + Send + 'static>>) -> () {
         if self.callbacks.contains_key(&id) {
             panic!("[paro] callback ids must be unique, '{}' is not", &id);
         }
-        self.callbacks.insert(id, callback);
+        self.callbacks.insert(id, (self.iteration, callback));
     }
 
     /**
-     * Clear callback registry. It is adviced to clear the callback registry before
-     * re-rendering and therfore refilling the registry to free up memory.
+     * Clears old callbacks from the registry. It is adviced to call iterate before
+     * each re-rendering.
      */
-    pub fn clear(&mut self) -> () {
-        self.callbacks.clear();
+    pub fn iterate(&mut self) -> () {
+        self.iteration += 1;
+        let keys_to_drop: Vec<String> = {self.callbacks.iter()
+            .filter(|(_key, (callback_iteration, _callback))| self.iteration - callback_iteration > 100)
+            .map(|(key, _value)| key.to_owned())
+            .collect()};
+        for key in &keys_to_drop {
+            self.callbacks.remove(key);
+        }
+        println!("paro iterate dropped {} old callbacks and now contains {}", keys_to_drop.len(), self.callbacks.len());
     }
 
     /**
      * Call a callback by its id
      */
     pub fn call(&mut self, id: String) -> Result<(), String> {
-        match self.callbacks.get(&id) {
-            Some(callback) => {
+        let split = id.split_once("__PARO__")
+            .expect("expected __PARO__ as part of the message");
+        let id = split.0;
+        let value = split.1.to_owned();
+        match self.callbacks.get(id) {
+            Some((_, callback)) => {
                 println!("before lock");
                 let mut locked = { callback.lock().unwrap() };
                 println!("after lock");
-                let result = Ok(locked(&mut self.state));
+                let result = Ok(locked(&mut self.state, value));
                 
                 println!("after call");
                 return result;
@@ -70,7 +84,7 @@ impl <State> ParoApp<State> {
         r#"<button onclick='{}'>
             counter: {}
         </button>"#, // we use single quotes on onclick, as event! returns a string with double quotes. maud handles that iself
-            event!(paro_app, (move |state: &mut ApplicationState| { // ApplicationState beeing whatever struct you use, here ParoApp<ApplicationState>
+            event!(paro_app, (move |state: &mut ApplicationState, _| { // ApplicationState beeing whatever struct you use, here ParoApp<ApplicationState>
                 // this is executed here in tauri and not in the gui client application
                 state.current_count += 1;
                 println!("first number of state.numbers updated to: {}", state.current_count);
@@ -82,7 +96,7 @@ impl <State> ParoApp<State> {
  * 
     let maud_template = html! {
         button onclick=({
-            event!(paro_app, (move |state: &mut ApplicationState| {
+            event!(paro_app, (move |state: &mut ApplicationState, _| {
                 // this is executed here in tauri and not in the gui client application
                 state.current_count += 1;
                 println!("first number of state.numbers updated to: {}", state.current_count);
@@ -102,7 +116,7 @@ macro_rules! event {
                     Arc::new(Mutex::new(($closure)))
                 );
             }
-            let javascript_call = format!{"window.__PARO__.emitEvent(\"{}\")", &callback_id};
+            let javascript_call = format!{"window.__PARO__.emitEvent(\"{}\", event)", &callback_id};
             javascript_call
         }
     }

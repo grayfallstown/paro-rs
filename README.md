@@ -1,5 +1,7 @@
 # pâro-rs
 
+![pâro logo](https://github.com/grayfallstown/paro-rs/blob/main/paro.png?raw=true)
+
 An opinionated way to develop [tauri](https://tauri.app/) desktop applications powered by html and css where you do not write any client code (no javascript, no webassembly) as all html rendering and event handling is done inside your tauri application. pâro has the minimal client code that is still required already done for you. No more https calls or dealing with JSON.
 
 This cuts down on code complexity, build process complexity, compile time, nerve-wracking and frustration.
@@ -109,9 +111,3 @@ While pâro mainly exists to be used with [tauri](https://tauri.app), outside of
 it does not reference tauri in any way. If you wanted, you could use pâro with tauri alternatives or even on an
 actual webapp. Please be aware that handling state and event handling on the server for thousands of users
 in a webapp would require quite a few resources on the server.
-
-
-## Maintainablility
-
-- I plan to use pâro on multiple projects myself
-- If the [bus factor](https://en.wikipedia.org/wiki/Bus_factor) of 1 worries you, with around 200 lines of easy code I got to say: If you can use pâro, you are already overqualified to maintain it yourself.

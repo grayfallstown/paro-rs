@@ -88,7 +88,7 @@ async fn handle_connection(paro_app: Arc<Mutex<ParoApp<ApplicationState>>>, peer
                     .expect(&format!("could not call paro callback for id '{}'", event_id));
 
                 // clean up old callbacks to free memory
-                paro_app.lock().unwrap().clear();
+                paro_app.lock().unwrap().iterate();
                 // render updated html and fill callbackstore with current callbacks
                 let rendered_html = render_with_maud(&mut paro_app.clone());
                 // send updated html to the client, so it can be shown to the user
@@ -109,7 +109,7 @@ fn render_with_format(paro_app: &mut Arc<Mutex<ParoApp<ApplicationState>>>) -> S
         r#"<button onclick='{}'>
             counter: {}
         </button>"#, // we use single quotes on onclick, as event! returns a string with double quotes. maud handles that iself
-            event!(paro_app, (move |state: &mut ApplicationState| {
+            event!(paro_app, (move |state: &mut ApplicationState, _| {
                 // this is executed here in tauri and not in the gui client application
                 state.current_count += 1;
                 println!("first number of state.numbers updated to: {}", state.current_count);
@@ -127,7 +127,7 @@ fn render_with_format(paro_app: &mut Arc<Mutex<ParoApp<ApplicationState>>>) -> S
 fn render_with_maud(paro_app: &mut Arc<Mutex<ParoApp<ApplicationState>>>) -> String {
     let maud_template = html! {
         button onclick=({
-            event!(paro_app, (move |state: &mut ApplicationState| {
+            event!(paro_app, (move |state: &mut ApplicationState, _| {
                 // this is executed here in tauri and not in the gui client application
                 state.current_count += 1;
                 println!("first number of state.numbers updated to: {}", state.current_count);
