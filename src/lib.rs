@@ -1,6 +1,8 @@
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 
+pub use uuid::Uuid;
+
 
 /**
  * The heart of pâro. A server side (as in, inside your tauri application)
@@ -44,7 +46,7 @@ impl <State> ParoApp<State> {
         for key in &keys_to_drop {
             self.callbacks.remove(key);
         }
-        println!("paro iterate dropped {} old callbacks and now contains {}", keys_to_drop.len(), self.callbacks.len());
+        // println!("paro iterate dropped {} old callbacks and now contains {}", keys_to_drop.len(), self.callbacks.len());
     }
 
     /**
@@ -57,12 +59,8 @@ impl <State> ParoApp<State> {
         let value = split.1.to_owned();
         match self.callbacks.get(id) {
             Some((_, callback)) => {
-                println!("before lock");
                 let mut locked = { callback.lock().unwrap() };
-                println!("after lock");
                 let result = Ok(locked(&mut self.state, value));
-                
-                println!("after call");
                 return result;
             },
             None => Err(format!("[paro] callback '{}' not found", &id))
@@ -81,9 +79,9 @@ impl <State> ParoApp<State> {
  * 
  * Example usage without maud templates
      let html = format!(
-        r#"<button onclick='{}'>
+        r#"<button onclick="{}">
             counter: {}
-        </button>"#, // we use single quotes on onclick, as event! returns a string with double quotes. maud handles that iself
+        </button>"#,
             event!(paro_app, (move |state: &mut ApplicationState, _| { // ApplicationState beeing whatever struct you use, here ParoApp<ApplicationState>
                 // this is executed here in tauri and not in the gui client application
                 state.current_count += 1;
@@ -109,14 +107,14 @@ impl <State> ParoApp<State> {
 macro_rules! event {
     ($paroApp:expr, $closure:tt)=>{
         {
-            let callback_id = uuid::Uuid::new_v4().to_string();
+            let callback_id = paro_rs::Uuid::new_v4().to_string();
             {
                 $paroApp.lock().unwrap().insert(
                     callback_id.clone(),
                     Arc::new(Mutex::new(($closure)))
                 );
             }
-            let javascript_call = format!{"window.__PARO__.emitEvent(\"{}\", event)", &callback_id};
+            let javascript_call = format!{"window.__PARO__.emitEvent(`{}`, event)", &callback_id};
             javascript_call
         }
     }

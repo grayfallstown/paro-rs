@@ -64,6 +64,10 @@ Pâro was what I felt writing my first tauri app and having to write an entire s
 
 - [x] Get pâro working
 - [x] Improve API (CallbackStore vs ApplicationState as toplevel element)
+- [x] Internally re-pub uuid, and refer to it as paro::UUID so it does not have to be added to the applications dependencies
+- [x] Use backticks in event! return so both single and double quotes work
+- [ ] Get port from tauri and use it directly
+- [ ] Use a logging framework
 - [ ] Examples
   - [x] Minimal counter example
   - [ ] Implement GUI for [html2maud](https://github.com/grayfallstown/html2maud) with pâro and put it as submodule under examples
@@ -71,6 +75,7 @@ Pâro was what I felt writing my first tauri app and having to write an entire s
     - [ ] Routing
     - [ ] Conditional rendering
     - [ ] Server side non gui events like api events or async database queries
+    - [ ] Form validation
 - [ ] pâro starter
     - [ ] As github starter repository
     - [ ] Include basics as routing, a formular and composing
@@ -91,13 +96,15 @@ MIT or Apache 2
 
 #### pâro itself consists of three main components:
 
-- [ParoApp<MyState>](https://github.com/grayfallstown/paro-rs/blob/main/src/lib.rs#L9)
+- [ParoApp\<MyState\>](https://github.com/grayfallstown/paro-rs/blob/main/src/lib.rs#L9)
   ParoApp holds your application state `MyState` and a `HashMap<CallbackID, Callback>`.
   All server side callbacks are stored there.
 - [event!](https://github.com/grayfallstown/paro-rs/blob/main/src/lib.rs#L95)
-  A macro that creates a callback with an id and adds it to the `CallbackStore`. It returns a small js call to the pâro client script as String. Example: `window.__PARO__.emitEvent("f0cbfc89-677b-481a-8746-05e2335d5cf8")`
+  A macro that creates a server side callback with an id and adds it to the `ParoApp`. It returns a small js call to the pâro client script as String. Example: `window.__PARO__.emitEvent("f0cbfc89-677b-481a-8746-05e2335d5cf8")` wich you can add to your html `onclick='event!([...])'`.
 - [paro.js](https://github.com/grayfallstown/paro-rs/blob/main/src/paro.js)
-  A quite small js script that connects to your tauri app via websocket and shows html that was send by your tauri app. Wasm would have been overkill here.
+  A quite small js script that connects to your tauri app via websocket and shows html that was send by your tauri app and it sends all client side events to the server / tauri to be handled there. Wasm would have been overkill here.
+
+Those three components allow you to write the html gui without writing any client code, as in no javascript or webassembly.
 
 #### Additionally pâro requires:
 

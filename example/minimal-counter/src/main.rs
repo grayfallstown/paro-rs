@@ -106,9 +106,9 @@ async fn handle_connection(paro_app: Arc<Mutex<ParoApp<ApplicationState>>>, peer
  */
 fn render_with_format(paro_app: &mut Arc<Mutex<ParoApp<ApplicationState>>>) -> String {
      let html = format!(
-        r#"<button onclick='{}'>
+        r#"<button onclick="{}">
             counter: {}
-        </button>"#, // we use single quotes on onclick, as event! returns a string with double quotes. maud handles that iself
+        </button>"#,
             event!(paro_app, (move |state: &mut ApplicationState, _| {
                 // this is executed here in tauri and not in the gui client application
                 state.current_count += 1;
