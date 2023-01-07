@@ -17,7 +17,7 @@ A simple counting button example ([full example here](https://github.com/grayfal
  * Pure html rendering without template engine. Has no compile time checks on
  * the generated html.
  */
-fn render_with_format(paro_app: &mut Arc<Mutex<ParoApp<ApplicationState>>>) -> String {
+fn render_with_format(paro_app: &mut Arc<RwLock<ParoApp<ApplicationState>>>) -> String {
      let html = format!(
         r#"<button onclick='{}'>
             counter: {}
@@ -27,7 +27,7 @@ fn render_with_format(paro_app: &mut Arc<Mutex<ParoApp<ApplicationState>>>) -> S
                 state.current_count += 1;
                 println!("first number of state.numbers updated to: {}", state.current_count);
             })),
-            paro_app.lock().unwrap().state.current_count
+            paro_app.read().unwrap().state.current_count
         );
     println!("format! generated html:\n{}", html);
     return html;
@@ -37,7 +37,7 @@ fn render_with_format(paro_app: &mut Arc<Mutex<ParoApp<ApplicationState>>>) -> S
  * Html rendering with a template engine. We are using maud here, as it has compile time checks
  * on the generated html, but you can use whatever you prefer.
  */
-fn render_with_maud(paro_app: &mut Arc<Mutex<ParoApp<ApplicationState>>>) -> String {
+fn render_with_maud(paro_app: &mut Arc<RwLock<ParoApp<ApplicationState>>>) -> String {
     let maud_template = html! {
         button onclick=({
             event!(paro_app, (move |state: &mut ApplicationState, _value| {
@@ -45,7 +45,7 @@ fn render_with_maud(paro_app: &mut Arc<Mutex<ParoApp<ApplicationState>>>) -> Str
                 state.current_count += 1;
                 println!("first number of state.numbers updated to: {}", state.current_count);
             }))
-        }) { "counter:" (paro_app.lock().unwrap().state.current_count) }
+        }) { "counter:" (paro_app.read().unwrap().state.current_count) }
     };
     let html = maud_template.into_string();
     println!("maud generated html:\n{}", html);

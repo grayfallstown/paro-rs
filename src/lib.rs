@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, RwLock};
 
 pub use uuid::Uuid;
 
@@ -9,7 +9,7 @@ pub use uuid::Uuid;
  * callback store that holds all your server side callbacks / eventhandlers.
  */
  pub struct ParoApp<State> {
-    callbacks: HashMap<String, (u128, Arc<Mutex<dyn FnMut(&mut State, String) + Send + 'static>>)>,
+    callbacks: HashMap<String, (u128, Arc<RwLock<dyn FnMut(&mut State, String) + Send + Sync + 'static>>)>,
     iteration: u128,
     pub state: State,
 }
@@ -26,7 +26,7 @@ impl <State> ParoApp<State> {
     /**
      * Register a callback with pâro so it can be called by it
      */
-    pub fn insert(&mut self, id: String, callback: Arc<Mutex<dyn FnMut(&mut State, String) + Send + 'static>>) -> () {
+    pub fn insert(&mut self, id: String, callback: Arc<RwLock<dyn FnMut(&mut State, String) + Send + Sync + 'static>>) -> () {
         if self.callbacks.contains_key(&id) {
             panic!("[paro] callback ids must be unique, '{}' is not", &id);
         }
@@ -59,7 +59,7 @@ impl <State> ParoApp<State> {
         let value = split.1.to_owned();
         match self.callbacks.get(id) {
             Some((_, callback)) => {
-                let mut locked = { callback.lock().unwrap() };
+                let mut locked = { callback.write().unwrap() };
                 let result = Ok(locked(&mut self.state, value));
                 return result;
             },
@@ -87,7 +87,7 @@ impl <State> ParoApp<State> {
                 state.current_count += 1;
                 println!("first number of state.numbers updated to: {}", state.current_count);
             })),
-            paro_app.lock().unwrap().state.current_count
+            paro_app.read().unwrap().state.current_count
         );
  * 
  * Example usage with maud templates:
@@ -99,7 +99,7 @@ impl <State> ParoApp<State> {
                 state.current_count += 1;
                 println!("first number of state.numbers updated to: {}", state.current_count);
             }))
-        }) { "counter:" (paro_app.lock().unwrap().state.current_count) }
+        }) { "counter:" (paro_app.read().unwrap().state.current_count) }
     };
     let html = maud_template.into_string();
  */
@@ -108,13 +108,27 @@ macro_rules! event {
     ($paroApp:expr, $closure:tt)=>{
         {
             let callback_id = paro_rs::Uuid::new_v4().to_string();
-            {
-                $paroApp.lock().unwrap().insert(
-                    callback_id.clone(),
-                    Arc::new(Mutex::new(($closure)))
-                );
-            }
+
             let javascript_call = format!{"window.__PARO__.emitEvent(`{}`, event)", &callback_id};
+            let mut my_paro = $paroApp.clone();
+
+            std::thread::spawn(move || {
+                loop {
+                    match my_paro.try_write() {
+                        Ok(ref mut data) => {
+                            data.insert(
+                                callback_id.clone(),
+                                Arc::new(RwLock::new(($closure)))
+                            );
+                            break;
+                        }
+                        _ => {
+                            println!("waiting for lock");
+                            std::thread::sleep(std::time::Duration::from_millis(1));
+                        },
+                    }
+                }    
+            });
             javascript_call
         }
     }
