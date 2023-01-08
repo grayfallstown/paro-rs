@@ -13,9 +13,7 @@ use futures_util::{SinkExt, StreamExt};
 use tokio_tungstenite::{accept_async};
 use tungstenite::{Result, Message};
 
-use maud::{html};
-
-use paro_rs::{ParoApp, event};
+use paro_rs::{ParoApp};
 
 mod state;
 mod router;

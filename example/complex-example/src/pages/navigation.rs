@@ -1,16 +1,15 @@
+use std::sync::{ Arc, RwLock };
 
-use std::sync::{Arc, RwLock};
-
-use maud::{html, Markup};
-use paro_rs::{ParoApp, event};
+use maud::{ html, Markup };
+use paro_rs::{ ParoApp, event };
 
 use crate::state::ApplicationState;
 use crate::router::Page;
 
-
 pub fn render_navigation(paro_app: &mut Arc<RwLock<ParoApp<ApplicationState>>>) -> Markup {
     let state = &paro_app.read().unwrap().state;
-    let rendered_navbar = html! {
+    let rendered_navbar =
+        html! {
         nav.navbar."navbar-expand"."navbar-dark"."bg-dark" {
      
            div #navbarSupportedContent.collapse."navbar-collapse" {
@@ -72,15 +71,23 @@ pub fn render_navigation(paro_app: &mut Arc<RwLock<ParoApp<ApplicationState>>>) 
                  }
               }
      
-              form."form-inline"."my-2"."my-lg-0" {
-                 input."form-control"."mr-sm-2" type="search" placeholder="Search" aria-label="Search" {
-                 }
-                 button.btn."btn-outline-success"."my-2"."my-sm-0" type="submit" {
+                form."form-inline"."my-2"."my-lg-0" onsubmit=({
+                    event!(paro_app, (move |state: &mut ApplicationState, _| state.page = Page::List))
+                }) {
+                    input."form-control"."mr-sm-2" type="search" placeholder="Search" aria-label="Search" oninput=({
+                        event!(paro_app, (move |state: &mut ApplicationState, value: String| {
+                            state.page = Page::List;
+                            state.list_state.search_term = if value == "undefined" || value == "null" { "".to_owned() } else { value };
+                            state.list_state.filter_employees(&state.employees);
+                        }))
+                    }) value=(paro_app.read().unwrap().state.list_state.search_term) {
+                }
+                button.btn."btn-outline-success"."my-2"."my-sm-0" type="submit" {
                     "Search"
-                 }
-              }
+                }
+            }
            }
         }
      };
-     rendered_navbar
+    rendered_navbar
 }

@@ -53,6 +53,19 @@ fn render_with_maud(paro_app: &mut Arc<RwLock<ParoApp<ApplicationState>>>) -> St
 }
 ```
 
+## All examples:
+
+All examples are made as their own crates, rather than using cargo examples, as the imports
+might overwise be confusing for rust newcommers.
+
+- [minimal counter example](https://github.com/grayfallstown/paro-rs/tree/main/example/minimal-counter)
+  The absolute minimum to get you started. Just a button that counts on click. Shows manual html generation
+  as well as html generation with [maud templates](https://github.com/lambda-fairy/maud).
+- [Employee CRUD example](https://github.com/grayfallstown/paro-rs/tree/main/example/complex-example)
+  Shows routing, list sorting and filtering as well as form handling.
+- [html2maud](https://github.com/grayfallstown/html2maud)
+  A simple GUI that converts html to [maud templates](https://github.com/lambda-fairy/maud)
+
 
 ## Where the name comes from
 
@@ -72,10 +85,10 @@ Pâro was what I felt writing my first tauri app and having to write an entire s
   - [x] Minimal counter example
   - [ ] Implement GUI for [html2maud](https://github.com/grayfallstown/html2maud) with pâro and put it as submodule under examples
   - [ ] More complex example with
-    - [ ] Routing
-    - [ ] Conditional rendering
-    - [ ] Server side non gui events like api events or async database queries
+    - [x] Routing
+    - [x] Conditional rendering
     - [ ] Form validation
+    - [ ] Server side non gui events like api events or async database queries
 - [ ] pâro starter
     - [ ] As github starter repository
     - [ ] Include basics as routing, a formular and composing
@@ -84,7 +97,7 @@ Pâro was what I felt writing my first tauri app and having to write an entire s
 - [ ] Documentation / gitbook
 - [ ] Establish Best Practices
 - [ ] Differential html update
-- [ ] Get a Logo
+- [x] Get a Logo
 
 
 ## License

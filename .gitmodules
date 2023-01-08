@@ -1,0 +1,3 @@
+[submodule "example/html2maud"]
+	path = example/html2maud
+	url = https://github.com/grayfallstown/html2maud.git

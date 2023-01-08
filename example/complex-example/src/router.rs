@@ -5,7 +5,7 @@ use paro_rs::ParoApp;
 use crate::state::ApplicationState;
 use crate::pages::{render_add, render_edit, render_home, render_list};
 
-#[derive(Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Page {
     Home,
     List,
