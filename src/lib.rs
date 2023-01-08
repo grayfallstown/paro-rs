@@ -9,7 +9,7 @@ pub use uuid::Uuid;
  * callback store that holds all your server side callbacks / eventhandlers.
  */
  pub struct ParoApp<State> {
-    callbacks: HashMap<String, (u128, Arc<RwLock<dyn FnMut(&mut State, String) + Send + Sync + 'static>>)>,
+    callbacks: HashMap<String, (u128, Arc<RwLock<dyn FnMut(&mut State, Option<String>) + Send + Sync + 'static>>)>,
     iteration: u128,
     pub state: State,
 }
@@ -26,7 +26,7 @@ impl <State> ParoApp<State> {
     /**
      * Register a callback with pâro so it can be called by it
      */
-    pub fn insert(&mut self, id: String, callback: Arc<RwLock<dyn FnMut(&mut State, String) + Send + Sync + 'static>>) -> () {
+    pub fn insert(&mut self, id: String, callback: Arc<RwLock<dyn FnMut(&mut State, Option<String>) + Send + Sync + 'static>>) -> () {
         if self.callbacks.contains_key(&id) {
             panic!("[paro] callback ids must be unique, '{}' is not", &id);
         }
@@ -57,10 +57,11 @@ impl <State> ParoApp<State> {
             .expect("expected __PARO__ as part of the message");
         let id = split.0;
         let value = split.1.to_owned();
+        let value_opt = if value.len() == 0 || value == "undefined" || value == "null" { None} else { Some(value.to_owned()) };
         match self.callbacks.get(id) {
             Some((_, callback)) => {
                 let mut locked = { callback.write().unwrap() };
-                let result = Ok(locked(&mut self.state, value));
+                let result = Ok(locked(&mut self.state, value_opt));
                 return result;
             },
             None => Err(format!("[paro] callback '{}' not found", &id))
@@ -113,6 +114,7 @@ macro_rules! event {
             let mut my_paro = $paroApp.clone();
 
             std::thread::spawn(move || {
+                // TODO: either get rid of this or move it into a proper function
                 loop {
                     match my_paro.try_write() {
                         Ok(ref mut data) => {
@@ -123,7 +125,7 @@ macro_rules! event {
                             break;
                         }
                         _ => {
-                            println!("waiting for lock");
+                            // println!("waiting for lock");
                             std::thread::sleep(std::time::Duration::from_millis(1));
                         },
                     }

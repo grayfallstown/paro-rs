@@ -3,7 +3,7 @@ use std::sync::{Arc, RwLock};
 
 use maud::html;
 
-use paro_rs::ParoApp;
+use paro_rs::*;
 
 use crate::state::*;
 use crate::pages::render_layout;
@@ -26,6 +26,20 @@ impl ListState {
         };
         result.filter_employees(employees);
         result
+    }
+
+    pub fn sort_by(&mut self, field: EmployeeField, employees: &Vec<Arc<Employee>>) {
+        if self.sort_by == field {
+            if self.sort_direction == Direction::Asc {
+                self.sort_direction = Direction::Dsc;
+            } else {
+                self.sort_direction = Direction::Asc;
+            }
+        } else {
+            self.sort_by = field;
+            self.sort_direction = Direction::Asc;
+        }
+        self.filter_employees(employees);
     }
 
     pub fn filter_employees(&mut self, employees: &Vec<Arc<Employee>>) -> () {
@@ -62,24 +76,37 @@ impl ListState {
 
 
 pub fn render_list(paro_app: &mut Arc<RwLock<ParoApp<ApplicationState>>>) -> String {
-    let list_state = &paro_app.read().unwrap().state.list_state;
+    let state = &paro_app.read().unwrap().state;
+    let list_state = &state.list_state;
     let content = html! {
         h1 {
-            "List"
+            "Our Team"
         }
         table.table {
             thead {
                 tr {
-                    th scope="col" {
+                    th scope="col pointer" onclick=(
+                        event!(paro_app, (move |state: &mut ApplicationState, _|
+                            state.list_state.sort_by(EmployeeField::FirstName, &state.employees)))
+                    ) {
                         "First"
                     }
-                    th scope="col" {
+                    th scope="col pointer" onclick=(
+                        event!(paro_app, (move |state: &mut ApplicationState, _|
+                            state.list_state.sort_by(EmployeeField::LastName, &state.employees)))
+                    ) {
                         "Last"
                     }
-                    th scope="col" {
+                    th scope="col pointer" onclick=(
+                        event!(paro_app, (move |state: &mut ApplicationState, _|
+                            state.list_state.sort_by(EmployeeField::Login, &state.employees)))
+                    ) {
                         "Login"
                     }
-                    th scope="col" {
+                    th scope="col pointer" onclick=(
+                        event!(paro_app, (move |state: &mut ApplicationState, _|
+                            state.list_state.sort_by(EmployeeField::Department, &state.employees)))
+                    ) {
                         "Department"
                     }
                 }

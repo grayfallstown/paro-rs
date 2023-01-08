@@ -6,8 +6,7 @@
 use std::sync::{Arc, RwLock};
 use std::net::SocketAddr;
 
-use tauri;
-use tauri_plugin_websocket::TauriWebsocket;
+use tauri::*;
 use tokio::net::{TcpListener, TcpStream};
 use futures_util::{SinkExt, StreamExt};
 use tokio_tungstenite::{accept_async};
@@ -107,7 +106,11 @@ async fn handle_connection(paro_app: Arc<RwLock<ParoApp<ApplicationState>>>, pee
 fn main() {
     tauri::async_runtime::spawn(start_server());
     tauri::Builder::default()
-        .plugin(TauriWebsocket::default()) // this was added
+        .setup(|app| {
+            let main_window = app.get_window("main").unwrap();
+            main_window.set_focus().unwrap();
+            Ok(())
+        })
         .run(tauri::generate_context!())
     .expect("error while running tauri application");
 }

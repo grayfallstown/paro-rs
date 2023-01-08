@@ -15,7 +15,6 @@ pub enum Page {
 
 
 pub fn render_page(paro_app: &mut Arc<RwLock<ParoApp<ApplicationState>>>) -> String {
-    println!("router start");
     let page = {paro_app.read().unwrap().state.page.clone()};
     let html = match page {
         Page::Add => render_add(paro_app),
@@ -23,6 +22,5 @@ pub fn render_page(paro_app: &mut Arc<RwLock<ParoApp<ApplicationState>>>) -> Str
         Page::Home => render_home(paro_app),
         Page::List => render_list(paro_app),
     };
-    println!("router end");
     html
 }

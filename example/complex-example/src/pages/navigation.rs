@@ -75,9 +75,9 @@ pub fn render_navigation(paro_app: &mut Arc<RwLock<ParoApp<ApplicationState>>>) 
                     event!(paro_app, (move |state: &mut ApplicationState, _| state.page = Page::List))
                 }) {
                     input."form-control"."mr-sm-2" type="search" placeholder="Search" aria-label="Search" oninput=({
-                        event!(paro_app, (move |state: &mut ApplicationState, value: String| {
+                        event!(paro_app, (move |state: &mut ApplicationState, value: Option<String>| {
                             state.page = Page::List;
-                            state.list_state.search_term = if value == "undefined" || value == "null" { "".to_owned() } else { value };
+                            state.list_state.search_term = if value.is_some() { value.unwrap() } else { "".to_owned() };
                             state.list_state.filter_employees(&state.employees);
                         }))
                     }) value=(paro_app.read().unwrap().state.list_state.search_term) {

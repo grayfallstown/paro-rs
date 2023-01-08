@@ -8,7 +8,7 @@ build = "src/build.rs"
 paro-rs = { path = "../../" }
 # paro-rs = "0.0.7"
 maud = "0.24.0"
-tauri = { version = "1.2.3", features = [] }
+tauri = { version = "1.2.3", features = ["api-all"] }
 tokio = { version = "1.11", features = ["full"] }
 tokio-tungstenite = "0.18.0"
 tungstenite = "0.18.0"
@@ -18,10 +18,6 @@ uuid = { version = "1.2", features = ["v4", "fast-rng"] }
 
 [build-dependencies]
 tauri-build = { version = "1.2.1", features = [] }
-
-[dependencies.tauri-plugin-websocket]
-git = "https://github.com/tauri-apps/tauri-plugin-websocket"
-branch = "dev"
 
 [features]
 # by default Tauri runs in production mode

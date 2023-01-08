@@ -1,9 +1,10 @@
 use uuid::Uuid;
 use std::sync::Arc;
-use crate::router::Page;
 use maud::{Render, Escaper};
 use std::fmt::Write;
-use crate::pages::ListState;
+use std::slice::Iter;
+use crate::router::Page;
+use crate::pages::*;
 
 
 /**
@@ -18,8 +19,8 @@ pub struct ApplicationState {
     pub employees: Vec<Arc<Employee>>,
     pub employee_of_the_month: Option<String>,
     pub employee_to_edit: Option<Employee>,
-    pub employee_to_add: Employee,
 
+    pub add_state: AddState,
     pub list_state: ListState,
 }
 
@@ -70,19 +71,13 @@ impl ApplicationState {
             }),
         ];
 
-        let mut result = ApplicationState {
+        let result = ApplicationState {
             page: Page::Home,
             employee_of_the_month: None,
             list_state: ListState::default(&employees),
+            add_state: AddState::default(),
             employees: employees,
             employee_to_edit: None,
-            employee_to_add: Employee {
-                id: Uuid::new_v4().to_string(),
-                first_name: "".to_owned(),
-                last_name: "".to_owned(),
-                login: "".to_owned(),
-                department: Department::Production,
-            },
         };
         return result;
     }
@@ -99,7 +94,7 @@ pub struct Employee {
     pub department: Department,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum EmployeeField {
     FirstName,
     LastName,
@@ -107,18 +102,30 @@ pub enum EmployeeField {
     Department,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum Direction {
     Asc,
     Dsc,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum Department {
     Sales,
     Production,
     Management,
     Maintenance,
+}
+
+impl Department {
+    pub fn into_iter() -> Iter<'static, Department> {
+        static DEPARTMENTS: [Department; 4] = [
+            Department::Sales,
+            Department::Production,
+            Department::Management,
+            Department::Maintenance,
+        ];
+        DEPARTMENTS.iter()
+    }
 }
 
 impl Render for Department {

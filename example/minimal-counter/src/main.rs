@@ -117,15 +117,16 @@ async fn handle_connection(paro_app: Arc<RwLock<ParoApp<ApplicationState>>>, pee
  * the generated html.
  */
 fn render_with_format(paro_app: &mut Arc<RwLock<ParoApp<ApplicationState>>>) -> String {
-     let html = format!(
+    let increase_counter = event!(paro_app, (move |state: &mut ApplicationState, _| {
+        // this is executed here in tauri and not in the gui client application
+        state.current_count += 1;
+        println!("first number of state.numbers updated to: {}", state.current_count);
+    }));
+    let html = format!(
         r#"<button onclick="{}">
             counter: {}
         </button>"#,
-            event!(paro_app, (move |state: &mut ApplicationState, _| {
-                // this is executed here in tauri and not in the gui client application
-                state.current_count += 1;
-                println!("first number of state.numbers updated to: {}", state.current_count);
-            })),
+            increase_counter,
             paro_app.read().unwrap().state.current_count
         );
     println!("format! generated html:\n{}", html);
@@ -133,21 +134,21 @@ fn render_with_format(paro_app: &mut Arc<RwLock<ParoApp<ApplicationState>>>) -> 
 }
 
 /**
- * Html rendering with a template engine. We are using maud here, as it has compile time checks
- * on the generated html, but you can use whatever you prefer.
+ * Html rendering with a template engine. We are using maud here, as it is easy, has compile time checks
+ * on the generated html and is very performant, but you can use whatever you prefer.
  */
 fn render_with_maud(paro_app: &mut Arc<RwLock<ParoApp<ApplicationState>>>) -> String {
+    let increase_counter = event!(paro_app, (move |state: &mut ApplicationState, _| {
+        // this is executed here in tauri and not in the gui client application
+        state.current_count += 1;
+        println!("first number of state.numbers updated to: {}", state.current_count);
+    }));
     let maud_template = html! {
-        button onclick=({
-            event!(paro_app, (move |state: &mut ApplicationState, _| {
-                // this is executed here in tauri and not in the gui client application
-                state.current_count += 1;
-                println!("first number of state.numbers updated to: {}", state.current_count);
-            }))
-        }) { "counter:" (paro_app.read().unwrap().state.current_count) }
+        button onclick=(increase_counter) {
+            "counter: " (paro_app.read().unwrap().state.current_count)
+        }
     };
     let html = maud_template.into_string();
-    println!("maud generated html:\n{}", html);
     return html;
 }
 
