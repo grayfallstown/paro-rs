@@ -8,6 +8,17 @@ This cuts down on code complexity, build process complexity, compile time, nerve
 
 pâro does not enforce how you generate your html. Use your favorite template engine or just use format!() on strings. pâro does not care, but [maud compile time templates](https://github.com/lambda-fairy/maud) will be used in many examples to get compile time checks.
 
+## Philosophy
+
+- **Why write two applications that communicate like web applications when we write a native gui**, just utilizing html and css because of how powerfull and flexible they are?
+- **No gap between application and GUI.** No datastructures need to be send via JSON to be rendered, no http handling or the logic being split across two applications.
+- **All control, rendering and event handling inside the developers tauri application.** No application specific client code has to be written, other than a single variable holding a port and a call to Paro.initialize(). (the port specification might disappear in the future as well)
+- **Give all power to the developer.** Show him how things can be realized, but don't enforce certain project structures, development cycles or ways on how to solve certain problems in his application. We don't know every developers applications and their requirements.
+- **Provide the minial API for the developer to be able to do everything he will ever need and not one thing more.**
+- **Make no assumptions over the developers datastructures**, as in do not require things to be serializable to JSON, or to implement any traits.
+- We are showing a GUI inside a tauri WebView, which is a lighter version of a normal browser. We use the WebView
+  because we want to save on resources and be performant, but there is **no need to squeeze the last kilobyte or the last nanosecond out of the rendering cylce**.
+
 ## Example
 
 A simple counting button example ([full example here](https://github.com/grayfallstown/paro-rs/tree/main/example/minimal-counter)):
@@ -83,7 +94,7 @@ Pâro was what I felt writing my first tauri app and having to write an entire s
 - [ ] Use a logging framework
 - [ ] Examples
   - [x] Minimal counter example
-  - [ ] Implement GUI for [html2maud](https://github.com/grayfallstown/html2maud) with pâro and put it as submodule under examples
+  - [x] Implement GUI for [html2maud](https://github.com/grayfallstown/html2maud) with pâro and put it as submodule under examples
   - [ ] More complex example with
     - [x] Routing
     - [x] Conditional rendering
@@ -121,8 +132,7 @@ Those three components allow you to write the html gui without writing any clien
 
 #### Additionally pâro requires:
 
-- You need to add the crate `uuid` with feature `v4` enabled to your dependencies
-- A websocket to connect to that handles calls to the `CallbackStore` and sends html to show to the client.
+- A websocket to connect to that handles calls to the `ParoApp` and sends html to show to the client.
 
 
 ## Trivia
