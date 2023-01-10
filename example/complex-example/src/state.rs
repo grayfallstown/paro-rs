@@ -86,12 +86,25 @@ impl ApplicationState {
 }
 
 // you could use &str and proper lifetimes here, I just want to keep it simple.
+#[derive(Clone, Debug)]
 pub struct Employee {
     pub id: String,
     pub first_name: String,
     pub last_name: String,
     pub login: String,
     pub department: Department,
+}
+
+impl Default for Employee {
+    fn default() -> Employee {
+        Employee {
+            id: Uuid::new_v4().to_string(),
+            first_name: "".to_owned(),
+            last_name: "".to_owned(),
+            login: "".to_owned(),
+            department: Department::Production,
+        }
+    }
 }
 
 #[derive(Debug, PartialEq)]
@@ -108,7 +121,7 @@ pub enum Direction {
     Dsc,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum Department {
     Sales,
     Production,

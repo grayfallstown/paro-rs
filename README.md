@@ -89,6 +89,8 @@ might overwise be confusing for rust newcommers.
 
 Pâro was what I felt writing my first tauri app and having to write an entire second application for the GUI, separated by http calls and json (de-)serialization and possibly another programming language, as well as during pâro's conceptual phase.
 
+# pâro will enter alpha status shortly
+
 ## Roadmap:
 
 - [x] Get pâro working

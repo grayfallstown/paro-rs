@@ -4,6 +4,7 @@ use paro_rs::*;
 use uuid;
 
 use crate::state::*;
+use crate::router::*;
 use crate::pages::render_layout;
 
 
@@ -51,9 +52,9 @@ pub fn render_add(paro_app: &mut Arc<RwLock<ParoApp<ApplicationState>>>) -> Stri
         let mut add_state = &mut state.add_state;
         add_state.employee.first_name = if value.is_some() { value.unwrap().trim().to_owned() } else { "".to_owned() };
         if add_state.employee.first_name.is_empty() {
-            add_state.first_name_validation = None;
+            add_state.first_name_validation = Some("Required".to_owned());
         } else {
-            add_state.last_name_validation = Some("Required".to_owned());
+            add_state.first_name_validation = None;
         }
         add_state.employee.login = format!("{}.{}", &add_state.employee.first_name, &add_state.employee.last_name);
         validate_login(add_state, &state.employees);
@@ -63,12 +64,25 @@ pub fn render_add(paro_app: &mut Arc<RwLock<ParoApp<ApplicationState>>>) -> Stri
         let mut add_state = &mut state.add_state;
         add_state.employee.last_name = if value.is_some() { value.unwrap().trim().to_owned() } else { "".to_owned() };
         if add_state.employee.last_name.is_empty() {
-            add_state.last_name_validation = None;
-        } else {
             add_state.last_name_validation = Some("Required".to_owned());
+        } else {
+            add_state.last_name_validation = None;
         }
         add_state.employee.login = format!("{}.{}", &add_state.employee.first_name, &add_state.employee.last_name);
         validate_login(add_state, &state.employees);
+    }));
+
+    let on_submit = event!(paro_app, (move |state: &mut ApplicationState, _value: Option<String>| {
+        let mut add_state = &mut state.add_state;
+        if add_state.first_name_validation.is_none() && add_state.last_name_validation.is_none() && add_state.login_validation.is_none() {
+            state.employees.push(Arc::new(add_state.employee.clone()));
+            add_state.employee = Employee::default();
+            add_state.first_name_validation = Some("Required".to_owned());
+            add_state.last_name_validation = Some("Required".to_owned());
+            add_state.login_validation = Some("Required".to_owned());
+            state.list_state.filter_employees(&state.employees);
+            state.page = Page::List;
+        }
     }));
 
     fn render_validation(validation: &Option<String>) -> Markup {
@@ -134,8 +148,8 @@ pub fn render_add(paro_app: &mut Arc<RwLock<ParoApp<ApplicationState>>>) -> Stri
                 }
             }
             div."col-12" {
-                button.btn."btn-primary" type="submit" disabled {
-                    "Submit form (not yet implemented)"
+                button.btn."btn-primary" type="submit" onclick=({on_submit}) {
+                    "Add to list"
                 }
             }
         }
