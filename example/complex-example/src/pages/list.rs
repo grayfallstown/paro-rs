@@ -6,7 +6,8 @@ use maud::html;
 use paro_rs::*;
 
 use crate::state::*;
-use crate::pages::render_layout;
+use crate::pages::*;
+use crate::router::*;
 
 
 pub struct ListState {
@@ -78,6 +79,16 @@ impl ListState {
 pub fn render_list(paro_app: &mut Arc<RwLock<ParoApp<ApplicationState>>>) -> String {
     let state = &paro_app.read().unwrap().state;
     let list_state = &state.list_state;
+
+    let create_edit_event = |employee: Arc<Employee>| {
+        event!(paro_app, (move |state: &mut ApplicationState, _value: Option<String>| {
+            let mut edit_state = &mut state.edit_state;
+            let employee_clone: Employee = (*employee).clone();
+            edit_state.employee = Some(employee_clone);
+            state.page = Page::Edit;
+        }))
+    };
+
     let content = html! {
         h1 {
             "Our Team"
@@ -85,34 +96,39 @@ pub fn render_list(paro_app: &mut Arc<RwLock<ParoApp<ApplicationState>>>) -> Str
         table.table {
             thead {
                 tr {
-                    th scope="col pointer" onclick=(
+                    th.pointer scope="col" onclick=(
                         event!(paro_app, (move |state: &mut ApplicationState, _|
                             state.list_state.sort_by(EmployeeField::FirstName, &state.employees)))
                     ) {
                         "First"
                     }
-                    th scope="col pointer" onclick=(
+                    th.pointer scope="col" onclick=(
                         event!(paro_app, (move |state: &mut ApplicationState, _|
                             state.list_state.sort_by(EmployeeField::LastName, &state.employees)))
                     ) {
                         "Last"
                     }
-                    th scope="col pointer" onclick=(
+                    th.pointer scope="col" onclick=(
                         event!(paro_app, (move |state: &mut ApplicationState, _|
                             state.list_state.sort_by(EmployeeField::Login, &state.employees)))
                     ) {
                         "Login"
                     }
-                    th scope="col pointer" onclick=(
+                    th.pointer scope="col" onclick=(
                         event!(paro_app, (move |state: &mut ApplicationState, _|
                             state.list_state.sort_by(EmployeeField::Department, &state.employees)))
                     ) {
                         "Department"
                     }
+                    th scope="col" {
+                        ""
+                    }
                 }
             }
             tbody {
                 @for employee in &list_state.filtered_employees {
+                    @let on_edit = create_edit_event(employee.clone());
+
                     tr {
                         td {
                             (employee.first_name)
@@ -125,6 +141,11 @@ pub fn render_list(paro_app: &mut Arc<RwLock<ParoApp<ApplicationState>>>) -> Str
                         }
                         td {
                             (employee.department)
+                        }
+                        td {
+                            button.btn."btn-primary" onclick=({on_edit}) {
+                                "Edit"
+                            }
                         }
                     }
                 }

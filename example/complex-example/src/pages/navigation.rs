@@ -54,12 +54,12 @@ pub fn render_navigation(paro_app: &mut Arc<RwLock<ParoApp<ApplicationState>>>) 
                  }
      
                  li."nav-item".active[state.page == Page::Edit] {
-                    a."nav-link".disabled[state.employee_to_edit.is_none()] href="#" onclick=({
+                    a."nav-link".disabled[state.edit_state.employee.is_none()] href="#" onclick=({
                         event!(paro_app, (move |state: &mut ApplicationState, _| state.page = Page::Edit))
                     }){
-                        @if state.employee_to_edit.is_some() {
-                            "Edit '" (state.employee_to_edit.as_ref().unwrap().login) "'"
-                        } else {
+                        @if state.edit_state.employee.is_some() {
+                            "Edit '" (state.edit_state.employee.as_ref().unwrap().login) "'"
+                        } @else {
                             "Edit"
                         }
                         @if state.page == Page::Edit {

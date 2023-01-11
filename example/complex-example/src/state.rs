@@ -18,9 +18,9 @@ pub struct ApplicationState {
     pub page: Page,
     pub employees: Vec<Arc<Employee>>,
     pub employee_of_the_month: Option<String>,
-    pub employee_to_edit: Option<Employee>,
 
     pub add_state: AddState,
+    pub edit_state: EditState,
     pub list_state: ListState,
 }
 
@@ -76,8 +76,8 @@ impl ApplicationState {
             employee_of_the_month: None,
             list_state: ListState::default(&employees),
             add_state: AddState::default(),
+            edit_state: EditState::default(),
             employees: employees,
-            employee_to_edit: None,
         };
         return result;
     }
@@ -113,6 +113,57 @@ pub enum EmployeeField {
     LastName,
     Login,
     Department,
+}
+
+pub struct EmployeeValidation {
+    pub first_name: Option<String>,
+    pub last_name: Option<String>,
+    pub login: Option<String>,
+}
+
+impl EmployeeValidation {
+    pub fn default() -> EmployeeValidation {
+        EmployeeValidation {
+            first_name: Some("Required.".to_owned()),
+            last_name: Some("Required.".to_owned()),
+            login: Some("Required.".to_owned()),
+        }
+    }
+
+    pub fn validate(
+        &mut self,
+        employee: &Employee,
+        employees: &Vec<Arc<Employee>>,
+        is_edit: bool,
+    ) {
+        if employee.first_name.trim().is_empty() {
+            self.first_name = Some("Required".to_owned());
+        } else {
+            self.first_name = None;
+        }
+        if employee.last_name.trim().is_empty() {
+            self.last_name = Some("Required".to_owned());
+        } else {
+            self.last_name = None;
+        }
+
+        let login = employee.login.trim();
+        if login.is_empty() || login == "." {
+            self.login = Some("Please provide a valid username".to_owned());
+        } else {
+            if !is_edit && employees.into_iter().any(|employee| employee.login == login) {
+                self.login = Some("This username is taken".to_owned());
+            } else {
+                self.login = None;
+            }
+        }
+    }
+
+    pub fn is_valid(&self) -> bool {
+        self.first_name.is_none() &&
+        self.last_name.is_none() &&
+        self.login.is_none()
+    }
 }
 
 #[derive(Debug, PartialEq)]

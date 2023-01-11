@@ -108,7 +108,7 @@ fn main() {
     tauri::Builder::default()
         .setup(|app| {
             let main_window = app.get_window("main").unwrap();
-            main_window.set_focus().unwrap();
+            // main_window.set_focus().unwrap();
             Ok(())
         })
         .run(tauri::generate_context!())

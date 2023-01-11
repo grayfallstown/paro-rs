@@ -117,17 +117,36 @@ async fn handle_connection(paro_app: Arc<RwLock<ParoApp<ApplicationState>>>, pee
  * the generated html.
  */
 fn render_with_format(paro_app: &mut Arc<RwLock<ParoApp<ApplicationState>>>) -> String {
+    // for the button
     let increase_counter = event!(paro_app, (move |state: &mut ApplicationState, _| {
         // this is executed here in tauri and not in the gui client application
         state.current_count += 1;
-        println!("first number of state.numbers updated to: {}", state.current_count);
+        println!("state.current_count updated to: {}", state.current_count);
+    }));
+
+    // for the input field
+    let set_counter = event!(paro_app, (move |state: &mut ApplicationState, value: Option<String>| {
+        match value {
+            None => state.current_count = 0,
+            Some(val) => {
+                match val.parse::<u64>() {
+                    Err(_) => state.current_count = 0,
+                    Ok(number) => state.current_count = number,
+                }
+            }
+        }
+        state.current_count += 1;
+        println!("state.current_count updated to: {}", state.current_count);
     }));
     let html = format!(
         r#"<button onclick="{}">
             counter: {}
-        </button>"#,
+        </button>
+        <input type="number" onchange="{}" value="{}" />"#,
             increase_counter,
-            paro_app.read().unwrap().state.current_count
+            paro_app.read().unwrap().state.current_count,
+            set_counter,
+            paro_app.read().unwrap().state.current_count,
         );
     println!("format! generated html:\n{}", html);
     return html;
@@ -138,14 +157,33 @@ fn render_with_format(paro_app: &mut Arc<RwLock<ParoApp<ApplicationState>>>) -> 
  * on the generated html and is very performant, but you can use whatever you prefer.
  */
 fn render_with_maud(paro_app: &mut Arc<RwLock<ParoApp<ApplicationState>>>) -> String {
+    // for the button
     let increase_counter = event!(paro_app, (move |state: &mut ApplicationState, _| {
         // this is executed here in tauri and not in the gui client application
         state.current_count += 1;
-        println!("first number of state.numbers updated to: {}", state.current_count);
+        println!("state.current_count updated to: {}", state.current_count);
+    }));
+
+    // for the input field
+    let set_counter = event!(paro_app, (move |state: &mut ApplicationState, value: Option<String>| {
+        match value {
+            None => state.current_count = 0,
+            Some(val) => {
+                match val.parse::<u64>() {
+                    Err(_) => state.current_count = 0,
+                    Ok(number) => state.current_count = number,
+                }
+            }
+        }
+        state.current_count += 1;
+        println!("state.current_count updated to: {}", state.current_count);
     }));
     let maud_template = html! {
         button onclick=(increase_counter) {
             "counter: " (paro_app.read().unwrap().state.current_count)
+        }
+        input type="number" value=(paro_app.read().unwrap().state.current_count) onchange=({set_counter}) {
+
         }
     };
     let html = maud_template.into_string();
