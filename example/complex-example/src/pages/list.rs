@@ -8,6 +8,7 @@ use paro_rs::*;
 use crate::state::*;
 use crate::pages::*;
 use crate::router::*;
+use crate::data_generation::generate_employees;
 
 
 pub struct ListState {

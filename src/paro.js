@@ -27,6 +27,7 @@
         onEmitEventHandler: undefined, // (event_id) => {}
         emitEvent: undefined, // (event_id, event) => {}
         baseElementId: "paro-application",
+        executeAfterNextRender: [],
         pingInterval: 60000,
         logging: true,
         logger: {
@@ -96,6 +97,11 @@
             else if (PARO.logging)
                 PARO.logger.error("[paro websocket message] could not find paro element '#" + PARO.baseElementId +
                 "'. Html will not be rendered!", event);
+            var callback = PARO.executeAfterNextRender.pop()
+            while (callback) {
+                callback();
+                callback = PARO.executeAfterNextRender.pop()
+            }
         };
         
 
@@ -147,8 +153,7 @@
                 if (PARO.onEmitEventHandler)
                     PARO.onEmitEventHandler(event_id, event);
                 PARO.websocket.send(event_id + "__PARO__" + value);    
-                setTimeout(() => {
-                    debugger
+                PARO.executeAfterNextRender.push(() => {
                     var element = document.querySelector(cssPath);
                     if (element) {
                         element.focus();
@@ -157,13 +162,13 @@
                             element.endPosition = endPosition;
                         }
                     }
-                }, 10);
+                });
             }
 
             if (event.type == "input")
                 get_value_and_emit();
             else
-                // we often want to react to each button press for example for validation.
+                // we often want to react to each key press for example for validation.
                 // oninput is triggered before value is updated, so we push a callback
                 // to the end of the executions stack, to be called, once value is set.
                 setTimeout(get_value_and_emit, 0);

@@ -5,6 +5,7 @@ use std::fmt::Write;
 use std::slice::Iter;
 use crate::router::Page;
 use crate::pages::*;
+use crate::data_generation::generate_employees;
 
 
 /**
@@ -26,51 +27,8 @@ pub struct ApplicationState {
 
 impl ApplicationState {
     pub fn default() -> ApplicationState {
-        let employees = vec![
-            Arc::new(Employee {
-                id: Uuid::new_v4().to_string(),
-                first_name: "John".to_owned(),
-                last_name: "Doe".to_owned(),
-                login: "john.doe".to_owned(),
-                department: Department::Sales,
-            }),
-            Arc::new(Employee {
-                id: Uuid::new_v4().to_string(),
-                first_name: "Jane".to_owned(),
-                last_name: "Doe".to_owned(),
-                login: "Jane.doe".to_owned(),
-                department: Department::Management,
-            }),
-            Arc::new(Employee {
-                id: Uuid::new_v4().to_string(),
-                first_name: "John".to_owned(),
-                last_name: "Smith".to_owned(),
-                login: "john.smith".to_owned(),
-                department: Department::Maintenance,
-            }),
-            Arc::new(Employee {
-                id: Uuid::new_v4().to_string(),
-                first_name: "Alice".to_owned(),
-                last_name: "Smith".to_owned(),
-                login: "alice.smith".to_owned(),
-                department: Department::Production,
-            }),
-            Arc::new(Employee {
-                id: Uuid::new_v4().to_string(),
-                first_name: "Box".to_owned(),
-                last_name: "Smith".to_owned(),
-                login: "bob.smith".to_owned(),
-                department: Department::Production,
-            }),
-            Arc::new(Employee {
-                id: Uuid::new_v4().to_string(),
-                first_name: "Max".to_owned(),
-                last_name: "Mustermann".to_owned(),
-                login: "max.mustermann".to_owned(),
-                department: Department::Production,
-            }),
-        ];
-
+        let employees = generate_employees(1000);
+        
         let result = ApplicationState {
             page: Page::Home,
             employee_of_the_month: None,
@@ -172,7 +130,7 @@ pub enum Direction {
     Dsc,
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Copy)]
 pub enum Department {
     Sales,
     Production,

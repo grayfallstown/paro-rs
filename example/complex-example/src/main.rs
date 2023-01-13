@@ -17,6 +17,7 @@ use paro_rs::{ParoApp};
 mod state;
 mod router;
 mod pages;
+mod data_generation;
 use state::*;
 use router::*;
 

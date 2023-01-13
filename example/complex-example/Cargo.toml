@@ -15,6 +15,7 @@ tungstenite = "0.18.0"
 futures-util = "0.3"
 chrono = "0.4.23"
 uuid = { version = "1.2", features = ["v4", "fast-rng"] }
+rand = "0.8.5"
 
 [build-dependencies]
 tauri-build = { version = "1.2.1", features = [] }
